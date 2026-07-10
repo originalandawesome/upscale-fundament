@@ -261,6 +261,46 @@
       '<path class="stroke" d="M12 20h30a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6H28l-8 8v-8h-8a6 6 0 0 1-6-6V26a6 6 0 0 1 6-6z"/>' +
       '</svg>',
 
+    "regio-amsterdam":
+      '<svg viewBox="0 0 128 128" aria-hidden="true">' +
+      // folded map sheet — the ONE mint plane is the centre panel
+      '<path class="plane" d="M46 24l34 10v70l-34-10z"/>' +
+      '<path class="stroke" d="M16 34l30-10 34 10 32-10v70l-32 10-34-10-30 10z"/>' +
+      '<path class="stroke stroke--thin" d="M46 24v70M80 34v70"/>' +
+      // street grid (left panel) + river (right panel)
+      '<path class="stroke stroke--thin" d="M22 46l18 7M22 60l18 7M22 74l18 7M31 42v46"/>' +
+      '<path class="stroke stroke--thin" d="M98 32c-7 12 5 20-2 34c-6 12 3 16-2 30"/>' +
+      // location pin (Diemen, tegen Amsterdam aan)
+      '<path class="stroke" d="M63 42a9 9 0 0 1 9 9c0 7-9 16-9 16s-9-9-9-16a9 9 0 0 1 9-9z"/>' +
+      '<circle class="amber" cx="63" cy="51" r="3.5"/>' +
+      '</svg>',
+
+    "regio-flevoland":
+      '<svg viewBox="0 0 128 128" aria-hidden="true">' +
+      // isometric polder plane — the ONE mint plane
+      '<path class="plane" d="M16 72l48-24 48 24-48 24z"/>' +
+      '<path class="stroke" d="M16 72l48-24 48 24-48 24z"/>' +
+      // polder parcel lines
+      '<path class="stroke stroke--thin" d="M32 80l48-24M48 88l48-24"/>' +
+      // water (Marker-/IJsselmeer) at the dyke edge
+      '<path class="stroke stroke--thin" d="M14 96c4-3 8-3 12 0s8 3 12 0M20 106c4-3 8-3 12 0s8 3 12 0"/>' +
+      // location pin (regio Almere)
+      '<path class="stroke" d="M64 26a9 9 0 0 1 9 9c0 7-9 16-9 16s-9-9-9-16a9 9 0 0 1 9-9z"/>' +
+      '<circle class="amber" cx="64" cy="35" r="3.5"/>' +
+      '</svg>',
+
+    "expat":
+      '<svg viewBox="0 0 128 128" aria-hidden="true">' +
+      // Dutch tax return document
+      '<path class="stroke" d="M20 36h36l14 14v58H20zM56 36v14h14"/>' +
+      '<path class="stroke stroke--thin" d="M32 68h26M32 80h18M32 92h22"/>' +
+      // speech bubble in English — the ONE mint plane
+      '<path class="plane" d="M66 12h42a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8H88l-12 12V48h-10a8 8 0 0 1-8-8V20a8 8 0 0 1 8-8z"/>' +
+      '<path class="stroke" d="M66 12h42a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8H88l-12 12V48h-10a8 8 0 0 1-8-8V20a8 8 0 0 1 8-8z"/>' +
+      '<text class="label" x="78" y="35" style="font-size:14px">EN</text>' +
+      '<path class="amber" d="M86 92l6 6 12-14"/>' +
+      '</svg>',
+
     "check":
       '<svg viewBox="0 0 128 128" aria-hidden="true">' +
       '<circle class="plane" cx="64" cy="64" r="40"/>' +

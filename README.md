@@ -16,7 +16,9 @@ python3 -m http.server 8000
 ## Structuur
 
 - `index.html`, `diensten.html`, `werkwijze.html`, `tips.html`, `pakketten.html`, `over-ons.html`, `contact.html` — NL-pagina's
+- `regio-amsterdam.html`, `almere-flevoland.html` — regiopagina's (NL-only, bewust géén EN-spiegel; ontsloten via footer + contextueel vanaf Home en Contact)
 - `en/` — Engelse spiegel (7 pagina's)
+- `en/english-speaking-tax-advisor.html` — expatpagina (EN-only, geen NL-spiegel; via footer)
 - `voorwaarden.html`, `privacy.html` — juridische pagina's (conceptteksten, NL leidend)
 - `assets/style.css`, `assets/main.js` — gedeelde stijl en interactie (EZ↔BV-toggle, tips-modals met `#checklist-ib`-deeplink, leadformulier-demo, scroll-animaties)
 - `docs/` — designbriefs (huisstijlregels!) en de originele contentdocumenten (copy, voorwaarden- en privacyconcepten, huisstijl-specificatie)
@@ -25,10 +27,9 @@ python3 -m http.server 8000
 
 1. **hreflang-tags** (in de `<head>` van elke pagina) zijn nu relatief; vervang ze door absolute URL's zodra het domein live is (plan: `upscaleconsultancy.com`, NL op de root, EN onder `/en/` — zie het design-document).
 2. **Leadformulier** is een demo (toont alleen een succesmelding). Koppelen aan een formulierdienst of serverless endpoint + business-WhatsApp/mail.
-3. **Regiopagina's** (Regio Amsterdam, Almere/Flevoland) uit het copy-document zijn nog niet gebouwd.
-4. **Juridische teksten** bevatten nog `[blokhaken]`-keuzes uit de concepten; invullen en juridisch laten toetsen.
-5. **Kilometers-Excel-link** in de Kostenstructuur-tip verwijst nog naar de contactpagina (bronbestand ontbrak).
+3. **Juridische teksten** bevatten nog `[blokhaken]`-keuzes uit de concepten; invullen en juridisch laten toetsen.
+4. **Kilometers-Excel-link** in de Kostenstructuur-tip verwijst nog naar de contactpagina (bronbestand ontbrak).
 
 ## Huisstijlregels (hard)
 
-Geen gradiënten · mint nooit als tekstkleur op wit · amber max 1–2 per scherm · knoppen nooit vaste breedte · broodtekst ≥16px · WCAG AA. Volledige regels: `docs/brief-fundament.md` en `docs/content/Huisstijl Upscale Consultancy.html`.
+Geen gradiënten · mint nooit als tekstkleur op wit · amber max 1–2 per scherm · knoppen nooit vaste breedte · broodtekst ≥16px · WCAG AA. Volledige regels: `docs/brief-fundament.md` en `docs/content/Huisstijl Upscale Consultancy (1).html` (bevat het officiële logo-systeem: gefacetteerde driehoek + lockup "UPSCALE CONSULTANCY / FINANCIAL SERVICES" + favicon).

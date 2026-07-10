@@ -252,19 +252,26 @@ a:hover { text-decoration-thickness: 2px; }
   min-height: 76px;
 }
 .brand {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; gap: 14px;
   text-decoration: none; color: var(--ink);
   margin-right: auto;
 }
-.brand-mark { width: 40px; height: 40px; flex: 0 0 auto; }
-.brand-text { line-height: 1.1; }
+.brand-mark { width: 42px; height: 42px; flex: 0 0 auto; }
+/* Wordmark per huisstijl-lockup (560×128): naam 38u op icoon 88u (≈ 0.43×),
+   regelafstand 1.0, descriptor 14u (0.37× de naam) met 0.23em spatiëring —
+   zo blijft CONSULTANCY breder dan FINANCIAL SERVICES, net als in de lockup */
+.brand-text { line-height: 1.04; }
 .brand-name {
   font-family: var(--font-head); font-weight: 700; font-size: 17px;
-  letter-spacing: -0.01em; color: var(--ink); display: block;
+  letter-spacing: 0.026em; text-transform: uppercase;
+  color: var(--ink); display: block;
 }
+.brand-name--light { font-weight: 400; }
 .brand-desc {
-  font-family: var(--font-body); font-size: 12.5px; color: var(--gray-600);
-  display: block; letter-spacing: 0.02em;
+  font-family: var(--font-head); font-weight: 500; font-size: 7px;
+  letter-spacing: 0.23em; text-transform: uppercase;
+  color: var(--petrol-700);
+  display: block; margin-top: 4px;
 }
 
 .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; padding: 0; }
@@ -369,7 +376,7 @@ a:hover { text-decoration-thickness: 2px; }
   .nav-bar { gap: 12px; }
   .brand { gap: 10px; }
   .brand-mark { width: 34px; height: 34px; }
-  .brand-name { font-size: 15.5px; white-space: nowrap; }
+  .brand-name { font-size: 13.5px; white-space: nowrap; }
   .lang-toggle a, .lang-toggle span { padding: 7px 9px; }
 }
 @media (min-width: 1081px) {
@@ -918,8 +925,8 @@ dialog.tip-modal[open]::backdrop { animation: backdrop-in .4s ease-out; }
 .site-footer ul { list-style: none; padding: 0; display: grid; gap: 10px; }
 .site-footer a { color: #E8F1F0; text-decoration: none; font-size: 15px; }
 .site-footer a:hover { color: var(--mint-300); text-decoration: underline; text-underline-offset: 3px; }
-.footer-brand .brand-name { color: #fff; }
-.footer-brand .brand-desc { color: #9DB8B4; }
+.footer-brand .brand-name { color: #F5F8F8; }
+.footer-brand .brand-desc { color: var(--mint-300); }
 .footer-brand p { font-size: 14.5px; color: #9DB8B4; margin-top: 16px; max-width: 34ch; }
 .footer-meta { font-size: 14.5px; display: grid; gap: 8px; color: #C9DBD8; }
 .footer-meta strong { color: #fff; font-weight: 600; }
@@ -1067,17 +1074,13 @@ dialog.tip-modal[open]::backdrop { animation: backdrop-in .4s ease-out; }
 .ill svg .gdot { fill: var(--petrol-700); opacity: .22; stroke: none; }
 .ill svg .dot { fill: var(--petrol-700); stroke: none; }
 
-/* Logo mark (Penrose tribar) */
-.brand-mark path {
-  fill: #fff;
-  stroke: var(--petrol-700);
-  stroke-width: 5;
-  stroke-linejoin: round;
-  vector-effect: none;
-}
-.brand-mark .lg-plane { fill: var(--mint-200); }
-.brand--dark .brand-mark path { fill: var(--petrol-900); stroke: #fff; stroke-width: 4.5; }
-.brand--dark .brand-mark .lg-plane { fill: var(--mint-300); }
+/* Logo mark (gefacetteerde driehoek; uitsparingen zijn echte transparantie via mask) */
+.brand-mark .lg-a { fill: #0A3F47; }
+.brand-mark .lg-b { fill: #17646F; }
+.brand-mark .lg-c { fill: #4C99A6; }
+.brand--dark .brand-mark .lg-a { fill: var(--mint-300); }
+.brand--dark .brand-mark .lg-b { fill: #4C99A6; }
+.brand--dark .brand-mark .lg-c { fill: #17646F; }
 .section--dark .brand-name { color: #fff; }
 
 /* draw states: JS sets dasharray/offset; .is-drawn transitions to 0 */
