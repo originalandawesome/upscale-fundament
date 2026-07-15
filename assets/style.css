@@ -123,7 +123,7 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .section--dark h2, .section--dark h3 { color: #fff; }
 .section--dark p { color: #C9DBD8; }
-.section--dark a { color: var(--mint-300); }
+.section--dark a:not(.btn) { color: var(--mint-300); }
 .section--cta {
   background: var(--surface) var(--grid-tile);
   border-top: 1px solid var(--border);
