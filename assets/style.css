@@ -124,10 +124,22 @@ a:hover { text-decoration-thickness: 2px; }
 .section--dark h2, .section--dark h3 { color: #fff; }
 .section--dark p { color: #C9DBD8; }
 .section--dark a { color: var(--mint-300); }
+.section--cta {
+  background: var(--surface) var(--grid-tile);
+  border-top: 1px solid var(--border);
+}
+/* CTA-achtergrond moet contrasteren met de sectie erboven:
+   volgt de CTA op een surface-sectie, dan wordt hij wit (zonder raster). */
+.section--surface + .section--cta { background: var(--white); }
+.cta-panel {
+  border-radius: 12px;
+  padding: 72px 48px;
+}
 
 @media (max-width: 700px) {
   .section { padding-block: 48px; }
   .section--tight { padding-block: 36px; }
+  .cta-panel { padding: 48px 24px; }
 }
 
 /* Sheet-style section header: index number + rule + title */
