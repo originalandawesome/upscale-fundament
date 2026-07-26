@@ -856,8 +856,15 @@
     var pkgField = document.querySelector("input[name='pakket']");
     document.querySelectorAll("[data-pkg]").forEach(function (btn) {
       btn.addEventListener("click", function () {
+        // suffix (" B.V.") is in EZ-stand alleen visueel verborgen (opacity),
+        // dus niet de textContent van .pt-name lezen maar zelf opbouwen
+        var name = btn.getAttribute("data-pkg");
         var tile = btn.closest(".price-tile");
-        var name = tile ? tile.querySelector(".pt-name").textContent.replace(/\s+/g, " ").trim() : btn.getAttribute("data-pkg");
+        var scope = btn.closest("[data-mode]");
+        var suffix = tile ? tile.querySelector(".pt-suffix") : null;
+        if (name && scope && scope.getAttribute("data-mode") === "bv" && suffix) {
+          name += " " + suffix.textContent.replace(/ /g, " ").trim();
+        }
         if (chip && chipName) {
           chipName.textContent = name;
           chip.classList.add("is-visible");
