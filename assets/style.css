@@ -607,6 +607,8 @@ a:hover { text-decoration-thickness: 2px; }
 /* Toggle-driven visibility */
 [data-mode] .only-bv { display: none; }
 [data-mode="bv"] .only-bv { display: block; }
+/* kaarten halen hun interne witruimte uit flex-gap; block zou die slopen */
+[data-mode="bv"] .card.only-bv { display: flex; }
 [data-mode="bv"] .only-ez { display: none; }
 li.only-bv, [data-mode="bv"] li.only-bv { display: none; }
 [data-mode="bv"] li.only-bv { display: list-item; }
