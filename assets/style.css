@@ -41,6 +41,8 @@
 * { margin: 0; }
 
 html { scroll-behavior: smooth; }
+/* anchor targets: keep the heading visible below the sticky header (76px + marge) */
+[id] { scroll-margin-top: 92px; }
 html:has(dialog[open]) { overflow: hidden; }
 
 body {
@@ -775,6 +777,17 @@ dialog.tip-modal[open]::backdrop { animation: backdrop-in .4s ease-out; }
   transition: border-color .2s, background-color .2s;
 }
 .modal-close:hover { border-color: var(--petrol-700); background: var(--surface); }
+.modal-copylink { position: relative; }
+.modal-copylink + .modal-close { margin-left: 0; }
+.modal-copylink.is-copied { border-color: var(--wa-600); color: var(--wa-600); }
+.modal-copylink.is-copied::after {
+  content: attr(data-done);
+  position: absolute; right: 0; top: calc(100% + 8px);
+  background: var(--petrol-900); color: #fff;
+  font-family: var(--font-head); font-size: 12.5px; font-weight: 500;
+  padding: 5px 12px; border-radius: 6px; white-space: nowrap;
+  pointer-events: none; z-index: 1;
+}
 .modal-body {
   padding: 26px 30px 32px;
   overflow-y: auto;
@@ -846,6 +859,12 @@ dialog.tip-modal[open]::backdrop { animation: backdrop-in .4s ease-out; }
   color: var(--ink);
 }
 .field .optional { color: var(--gray-600); font-weight: 400; font-family: var(--font-body); font-size: 13px; }
+/* required marker: amber asterisk on every required field, via CSS only */
+.field:has([required]) > label::after {
+  content: " *" / "";
+  color: var(--amber-600); font-weight: 600;
+}
+.req-hint { font-size: 13px; color: var(--gray-600); }
 .field input, .field select, .field textarea {
   font-family: var(--font-body); font-size: 16px;
   color: var(--ink);
@@ -891,6 +910,28 @@ dialog.tip-modal[open]::backdrop { animation: backdrop-in .4s ease-out; }
 .form-success .fs-ill { width: 96px; margin: 0 auto 18px; }
 .form-success h3 { font-size: 24px; margin-bottom: 10px; }
 .form-success p { margin-inline: auto; color: var(--gray-700); }
+.form-success .fs-status { max-width: 46ch; }
+.fs-recap {
+  margin: 26px auto 0; max-width: 480px;
+  text-align: left;
+  background: var(--surface) var(--grid-tile);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 22px 26px;
+}
+.fs-recap h4 {
+  font-size: 13px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--petrol-700); margin-bottom: 14px;
+}
+.fs-recap dl { margin: 0; display: grid; gap: 12px; }
+.fs-recap dt {
+  font-family: var(--font-head); font-size: 11.5px; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--gray-600);
+}
+.fs-recap dd { margin: 1px 0 0; font-size: 15px; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.fs-recap .fs-note {
+  margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border);
+  font-size: 13px; color: var(--gray-600);
+}
 .lead-form.is-hidden { display: none; }
 
 /* ---------- Contact page ---------- */

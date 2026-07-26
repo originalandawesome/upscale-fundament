@@ -477,6 +477,8 @@
   }
 
   /* ---------------- EZ ↔ BV segment toggle ---------------- */
+  var SEG_KEY = "uc-seg-mode";
+
   function setupToggles() {
     document.querySelectorAll(".seg-toggle").forEach(function (toggle) {
       var scope = document.querySelector(toggle.getAttribute("data-scope"));
@@ -508,8 +510,20 @@
       }
 
       buttons.forEach(function (b) {
-        b.addEventListener("click", function () { setMode(b.getAttribute("data-mode"), true); });
+        b.addEventListener("click", function () {
+          var mode = b.getAttribute("data-mode");
+          try { localStorage.setItem(SEG_KEY, mode); } catch (e) { /* private mode */ }
+          setMode(mode, true);
+        });
       });
+
+      // restore the visitor's last choice (e.g. after navigating away and back)
+      var saved = null;
+      try { saved = localStorage.getItem(SEG_KEY); } catch (e) { /* private mode */ }
+      if (saved && saved !== toggle.getAttribute("data-active") &&
+          toggle.querySelector("button[data-mode='" + saved + "']")) {
+        setMode(saved, false);
+      }
     });
   }
 
@@ -520,9 +534,8 @@
     if (!dialog || dialog.open) return;
     lastOpener = opener || null;
     dialog.showModal();
-    if (dialog.id === "checklist-ib") {
-      history.replaceState(null, "", "#checklist-ib");
-    }
+    // every tip gets a shareable address: tips.html#<id>
+    history.replaceState(null, "", "#" + dialog.id);
     // draw the modal's illustration
     dialog.querySelectorAll(".ill").forEach(function (el) {
       if (!el.classList.contains("is-drawn")) {
@@ -533,6 +546,52 @@
 
   function closeModal(dialog) {
     if (dialog.open) dialog.close();
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy") ? resolve() : reject(); }
+      catch (e) { reject(e); }
+      finally { document.body.removeChild(ta); }
+    });
+  }
+
+  function addCopyLinkButton(dialog) {
+    var closeBtn = dialog.querySelector(".modal-close");
+    if (!closeBtn) return;
+    var labels = LANG === "en"
+      ? { copy: "Copy link to this tip", done: "Link copied" }
+      : { copy: "Kopieer de link naar deze tip", done: "Link gekopieerd" };
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "modal-close modal-copylink";
+    btn.setAttribute("aria-label", labels.copy);
+    btn.setAttribute("title", labels.copy);
+    btn.setAttribute("data-done", labels.done);
+    btn.innerHTML =
+      '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">' +
+      '<path d="M6.5 9.5l3-3M7 4.5l1.3-1.3a2.4 2.4 0 0 1 3.4 0l1.1 1.1a2.4 2.4 0 0 1 0 3.4L11.5 9M9 11.5l-1.3 1.3a2.4 2.4 0 0 1-3.4 0l-1.1-1.1a2.4 2.4 0 0 1 0-3.4L4.5 7" ' +
+      'stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+    closeBtn.parentNode.insertBefore(btn, closeBtn);
+    var timer = null;
+    btn.addEventListener("click", function () {
+      var url = location.origin + location.pathname + "#" + dialog.id;
+      copyText(url).then(function () {
+        btn.classList.add("is-copied");
+        clearTimeout(timer);
+        timer = setTimeout(function () { btn.classList.remove("is-copied"); }, 1800);
+      });
+    });
   }
 
   function setupModals() {
@@ -549,11 +608,12 @@
         c.addEventListener("click", function () { closeModal(dialog); });
       });
       dialog.addEventListener("close", function () {
-        if (dialog.id === "checklist-ib" && location.hash === "#checklist-ib") {
+        if (location.hash === "#" + dialog.id) {
           history.replaceState(null, "", location.pathname + location.search);
         }
         if (lastOpener) { lastOpener.focus(); lastOpener = null; }
       });
+      addCopyLinkButton(dialog);
     });
     // deep link (#checklist-ib and friends)
     var hash = location.hash.replace("#", "");
@@ -584,40 +644,210 @@
         }
       });
       if (window.matchMedia("(hover: hover)").matches) {
-        b.addEventListener("mouseenter", function () { flip(true); });
-        b.addEventListener("mouseleave", function () { if (!pinned) flip(false); });
+        // Hover on the stable zone, not the balloon itself: the balloon rotates
+        // on flip, so its own hitbox collapses mid-animation and hover would
+        // rapidly toggle on/off.
+        var zone = b.closest(".balloon-zone") || b;
+        zone.addEventListener("mouseenter", function () { flip(true); });
+        zone.addEventListener("mouseleave", function () { if (!pinned) flip(false); });
       }
     });
   }
 
-  /* ---------------- Lead form (demo) ---------------- */
+  /* ---------------- Lead form ---------------- */
+  var CONTACT_EMAIL = "info@upscaleconsultancy.com";
+  var WA_NUMBER = "31203692961";
+  // PHP-handler op de TransIP-hosting; zie contact-handler.php in de repo.
+  var FORM_ENDPOINT = "https://upscaleconsultancy.com/contact-handler.php";
+
+  function fieldValue(form, name) {
+    var el = form.querySelector("[name='" + name + "']");
+    return el ? el.value.trim() : "";
+  }
+
+  // Compose the request as a short, personal story — used for both the
+  // e-mail body and the prefilled WhatsApp message (%0A line breaks).
+  function formStory(form) {
+    var naam = fieldValue(form, "naam");
+    var tel = fieldValue(form, "telefoon");
+    var mail = fieldValue(form, "email");
+    var mutaties = fieldValue(form, "mutaties");
+    var bericht = fieldValue(form, "bericht");
+    var pakket = fieldValue(form, "pakket");
+    var mutLow = mutaties ? mutaties.charAt(0).toLowerCase() + mutaties.slice(1) : "";
+    var lines = ["Hi Upscale Consultancy,", ""];
+    if (LANG === "en") {
+      lines.push("My name is " + naam + (pakket
+        ? " and I'd like more information about the " + pakket + " package."
+        : " and I'd like more information about your services."));
+      lines.push(mutaties
+        ? "I have about " + mutLow + " bank transactions per month."
+        : "I can't yet estimate how many bank transactions I have per month.");
+      if (bericht) { lines.push(""); lines.push(bericht); }
+      lines.push("", "Kind regards,", naam,
+        "Phone: " + tel, "E-mail: " + mail);
+    } else {
+      lines.push("Ik ben " + naam + (pakket
+        ? " en ik wil graag meer informatie over het pakket " + pakket + "."
+        : " en ik wil graag meer informatie over jullie dienstverlening."));
+      lines.push(mutaties
+        ? "Ik heb per maand " + mutLow + " bij- en afschrijvingen."
+        : "Ik kan nu nog niet goed inschatten hoeveel bij- en afschrijvingen ik per maand heb.");
+      if (bericht) { lines.push(""); lines.push(bericht); }
+      lines.push("", "Met vriendelijke groet,", naam,
+        "Telefoon: " + tel, "E-mail: " + mail);
+    }
+    return lines.join("\n");
+  }
+
+  // Confirmation panel: channel-specific status + a recap of everything the
+  // visitor filled in, so nothing is ever lost if sending goes wrong.
+  function buildRecap(form, info) {
+    var en = LANG === "en";
+    var t = en ? {
+      mailOk: "Your request has been sent." + (info.copy ? " We've also e-mailed a copy to " + info.email + " for your records." : ""),
+      mailto: "We've opened your e-mail app with your request ready to go. Just press send there and it's on its way.",
+      wa: "We've opened WhatsApp with your message ready to go. Just press send there and it's on its way.",
+      recap: "This is what you filled in",
+      note: "Keep this on your screen as your own copy.",
+      labels: { naam: "Name", telefoon: "Phone", email: "E-mail", pakket: "Package", mutaties: "Bank transactions per month", bericht: "Message" }
+    } : {
+      mailOk: "Je aanvraag is verstuurd." + (info.copy ? " Ter bevestiging hebben we ook een kopie gemaild naar " + info.email + "." : ""),
+      mailto: "We hebben je mailprogramma geopend met je aanvraag. Druk daar nog even op verzenden en hij is onderweg.",
+      wa: "We hebben WhatsApp geopend met je bericht. Druk daar nog even op verzenden en hij is onderweg.",
+      recap: "Dit heb je ingevuld",
+      note: "Handig om even open te laten staan: zo heb je zelf ook een kopie.",
+      labels: { naam: "Naam", telefoon: "Telefoon", email: "E-mail", pakket: "Pakket", mutaties: "Bij-/afschrijvingen per maand", bericht: "Bericht" }
+    };
+
+    var frag = document.createDocumentFragment();
+    var status = document.createElement("p");
+    status.className = "fs-status";
+    status.textContent = info.channel === "wa" ? t.wa : (info.channel === "mailto" ? t.mailto : t.mailOk);
+    frag.appendChild(status);
+
+    var recap = document.createElement("div");
+    recap.className = "fs-recap";
+    var h = document.createElement("h4");
+    h.textContent = t.recap;
+    recap.appendChild(h);
+    var dl = document.createElement("dl");
+    ["naam", "telefoon", "email", "pakket", "mutaties", "bericht"].forEach(function (name) {
+      var val = fieldValue(form, name);
+      if (!val) return;
+      var row = document.createElement("div");
+      var dt = document.createElement("dt");
+      dt.textContent = t.labels[name];
+      var dd = document.createElement("dd");
+      dd.textContent = val;
+      row.appendChild(dt); row.appendChild(dd);
+      dl.appendChild(row);
+    });
+    recap.appendChild(dl);
+    var note = document.createElement("p");
+    note.className = "fs-note";
+    note.textContent = t.note;
+    recap.appendChild(note);
+    frag.appendChild(recap);
+    return frag;
+  }
+
+  function showFormSuccess(form, info) {
+    var panel = form.closest(".form-panel") || form.parentElement;
+    var success = panel.querySelector(".form-success");
+    var chip = panel.querySelector(".pkg-chip");
+    if (chip) chip.classList.remove("is-visible");
+    if (success) {
+      // the static page text is generic; replace it with the accurate
+      // channel-specific status + the visitor's own data
+      var staticP = success.querySelector("p:not(.fs-status):not(.fs-note)");
+      if (staticP) staticP.style.display = "none";
+      var oldStatus = success.querySelector(".fs-status");
+      if (oldStatus) oldStatus.remove();
+      var oldRecap = success.querySelector(".fs-recap");
+      if (oldRecap) oldRecap.remove();
+      success.appendChild(buildRecap(form, info || { channel: "mail" }));
+    }
+    form.classList.add("is-hidden");
+    if (success) {
+      success.classList.add("is-visible");
+      var ph = success.querySelector("[data-ill-success]");
+      if (ph && !ph.querySelector("svg")) {
+        ph.innerHTML = ILL.check;
+        ph.classList.add("ill");
+        prepDraw(ph);
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { drawNow(ph); });
+        });
+      } else if (ph) {
+        drawNow(ph);
+      }
+      success.setAttribute("tabindex", "-1");
+      success.focus({ preventScroll: false });
+    }
+  }
+
   function setupForms() {
     document.querySelectorAll("form.lead-form").forEach(function (form) {
+      // honeypot tegen spam-bots: onzichtbaar veld dat mensen leeg laten
+      var hp = document.createElement("input");
+      hp.type = "text";
+      hp.name = "website";
+      hp.tabIndex = -1;
+      hp.autocomplete = "off";
+      hp.setAttribute("aria-hidden", "true");
+      hp.style.cssText = "position:absolute;left:-9999px;width:1px;height:1px;opacity:0";
+      form.appendChild(hp);
+
+      // "Verstuur aanvraag" → POST naar onze eigen handler op de TransIP-
+      // hosting; lukt dat niet (bijv. lokaal), dan een mailto-concept.
       form.addEventListener("submit", function (e) {
         e.preventDefault();
         if (!form.checkValidity()) { form.reportValidity(); return; }
-        var panel = form.closest(".form-panel") || form.parentElement;
-        var success = panel.querySelector(".form-success");
-        form.classList.add("is-hidden");
-        var chip = panel.querySelector(".pkg-chip");
-        if (chip) chip.classList.remove("is-visible");
-        if (success) {
-          success.classList.add("is-visible");
-          var ph = success.querySelector("[data-ill-success]");
-          if (ph && !ph.querySelector("svg")) {
-            ph.innerHTML = ILL.check;
-            ph.classList.add("ill");
-            prepDraw(ph);
-            requestAnimationFrame(function () {
-              requestAnimationFrame(function () { drawNow(ph); });
-            });
-          } else if (ph) {
-            drawNow(ph);
-          }
-          success.setAttribute("tabindex", "-1");
-          success.focus({ preventScroll: false });
-        }
+        var submitBtn = form.querySelector("button[type='submit']");
+        if (submitBtn) submitBtn.disabled = true;
+        var data = new FormData(form);
+        data.append("taal", LANG);
+        fetch(FORM_ENDPOINT, { method: "POST", body: data })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (!j.ok) throw new Error("send failed");
+            showFormSuccess(form, { channel: "mail", copy: !!j.copy, email: fieldValue(form, "email") });
+          })
+          .catch(function () {
+            var pakket = fieldValue(form, "pakket");
+            var subject = (LANG === "en" ? "Request via the website" : "Aanvraag via de website") +
+              (pakket ? ": " + pakket : "");
+            location.href = "mailto:" + CONTACT_EMAIL +
+              "?subject=" + encodeURIComponent(subject) +
+              "&body=" + encodeURIComponent(formStory(form));
+            showFormSuccess(form, { channel: "mailto" });
+          })
+          .finally(function () { if (submitBtn) submitBtn.disabled = false; });
       });
+
+      // "Verstuur via WhatsApp" → open WhatsApp with the same story prefilled
+      var waBtn = form.querySelector(".btn-wa");
+      if (waBtn) {
+        waBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          if (!form.checkValidity()) { form.reportValidity(); return; }
+          window.open("https://wa.me/" + WA_NUMBER + "?text=" +
+            encodeURIComponent(formStory(form)), "_blank", "noopener");
+          showFormSuccess(form, { channel: "wa" });
+        });
+      }
+
+      // "* = verplicht" hint above the buttons (fields get their * via CSS)
+      var actions = form.querySelector(".form-actions");
+      if (actions && form.querySelector("[required]")) {
+        var hint = document.createElement("p");
+        hint.className = "req-hint";
+        hint.textContent = LANG === "en"
+          ? "Fields marked * are required."
+          : "Velden met een * zijn verplicht.";
+        actions.parentNode.insertBefore(hint, actions);
+      }
     });
 
     // package tile → form chip
