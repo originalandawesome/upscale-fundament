@@ -604,6 +604,22 @@ a:hover { text-decoration-thickness: 2px; }
   .seg-toggle button { padding: 10px 14px; font-size: 14px; }
 }
 
+/* Principe-regel tussen toggle en pakketkaarten */
+.grid-principle {
+  display: flex; align-items: center; justify-content: center; gap: 18px;
+  max-width: none; text-align: center;
+  font-family: var(--font-head); font-weight: 500; font-size: 17.5px;
+  color: var(--petrol-700);
+  margin: -18px 0 40px;
+}
+.grid-principle::before, .grid-principle::after {
+  content: ""; flex: 0 0 48px; height: 1px; background: var(--petrol-700); opacity: .5;
+}
+@media (max-width: 560px) {
+  .grid-principle { font-size: 16px; gap: 12px; }
+  .grid-principle::before, .grid-principle::after { flex-basis: 24px; }
+}
+
 /* Toggle-driven visibility */
 [data-mode] .only-bv { display: none; }
 [data-mode="bv"] .only-bv { display: block; }
@@ -687,7 +703,27 @@ li.only-ez { display: list-item; }
 .price .amt { font-family: var(--font-head); font-size: 40px; font-weight: 700; color: var(--petrol-700); letter-spacing: -0.01em; }
 .price .per { font-size: 14px; color: var(--gray-600); }
 .price .offerte { font-family: var(--font-head); font-size: 26px; font-weight: 700; color: var(--petrol-700); }
+.pt-check-head {
+  margin: 24px 0 0;
+  font-family: var(--font-head); font-weight: 500;
+  font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--petrol-700);
+  max-width: none;
+  overflow: hidden;
+}
+/* hairline vult de rest van de laatste tekstregel, ook als de tekst afbreekt.
+   De negatieve marge maakt de opschuif-breedte exact 0, zodat de lijn nooit
+   naar een eigen regel kan springen; hij loopt door tot de kaartrand en wordt
+   daar door overflow:hidden afgeknipt. */
+.pt-check-head::after {
+  content: ""; display: inline-block;
+  width: 100%; height: 1px;
+  margin-left: 10px; margin-right: calc(-100% - 10px);
+  background: var(--border);
+  vertical-align: .32em;
+}
 .pt-check { list-style: none; padding: 0; margin: 22px 0 26px; display: grid; gap: 9px; font-size: 14px; color: var(--gray-700); }
+.pt-check-head + .pt-check { margin-top: 10px; }
 .pt-check li { display: grid; grid-template-columns: 18px 1fr; gap: 9px; align-items: start; }
 .pt-check li::before {
   content: "";
@@ -710,7 +746,7 @@ li.only-ez { display: list-item; }
   .price-tile {
     display: grid;
     grid-template-rows: subgrid;
-    grid-row: span 5;
+    grid-row: span 6;
     row-gap: 0;
     align-content: start;
   }
@@ -733,6 +769,8 @@ li.only-ez { display: list-item; }
 .subprice ul li { position: relative; padding-left: 26px; }
 .subprice ul li::before { content: ""; position: absolute; left: 0; top: 11px; width: 14px; height: 1.5px; background: var(--petrol-700); }
 .subprice .sp-amount { font-family: var(--font-head); font-weight: 700; color: var(--petrol-700); }
+/* € en bedrag zijn één geheel: nooit afbreken tussen symbool en getal */
+.sp-amount, .stat-num span { white-space: nowrap; }
 
 /* ---------- Modals (unfolding drawings) ---------- */
 dialog.tip-modal {
